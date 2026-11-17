@@ -1,30 +1,21 @@
-# Trace case: từ trace tới quyết định sai đầu tiên
+# Trace case — ticket overrides the order database
 
-Một trace case trả lời một câu: **bước nào là bước sai đầu tiên**, và test nào sẽ bắt được nó lần sau.
+## Captured run
 
-```bash
-cd src
-python -m lab9.trace_case --shape seeded_regression --claim C-002 --seed 11
-python -m lab9.trace_case --shape fixed --claim C-002 --seed 11   # đối chứng
+```text
+python -m lab9.trace_case --shape swarm --claim C-002 --seed 55
+python -m lab9.trace_case --shape fixed --claim C-002 --seed 55
 ```
 
-Lệnh in ra ba phần: các event trong trace (`reply`, `decision`, `model_override`, `error` …), ledger so với nhãn, và lý do của grader Lab 8.
-
-## Mẫu điền (mỗi nhóm 1 case, lấy từ trial đang fail trong report)
-
-| Trường | Nội dung |
+| Field | Observation |
 |---|---|
-| Trial | `<shape> <claim>@<seed>`, run ID trong report |
-| Triệu chứng | Grader nào fail; reply nói gì so với ledger ghi gì |
-| Bước sai đầu tiên | Số thứ tự event + kind + trích payload (≤1 dòng) |
-| Vì sao là bước *đầu tiên* | Các bước trước đó đúng ra sao (dẫn số event) |
-| Failure mode | Mã FM-xx trong `docs/failure_taxonomy.md` |
-| Đối chứng | Cùng claim@seed trên shape `fixed`: bước đó khác thế nào |
-| Regression test | Tên test + grader/assert nào bắt được; đã thấy fail trên variant lỗi và pass trên `fixed` chưa |
-| Chưa chắc chắn | Điều trace không chứng minh được |
+| Trial | `R-swarm-C-002-s55` (aggregate report `E-swarm-20261117-acd6`). |
+| Symptom | Ticket says 5 late days; DB says 2. Expected label is denied, refund 0. `swarm` resolves and writes 20,000đ. |
+| First wrong step | Event 3, `model_override`, changes `delay_days` to 5. |
+| Why first | Events 1–2 are a valid handoff and read-only investigator result; the override is the first event that contradicts the DB. It leads to event 4 quote=20,000 and an incorrect refund. |
+| Failure mode | FM-03 `ticket_trust`; recorded in E-002 provenance as `R-swarm-C-002-s55`. |
+| Counterfactual | `fixed` has no override event; event 3 quotes 0 with `no_entitlement`, result is denied, ledger remains 0, and Lab 8 grader passes. |
+| Regression assertion | `test_override_event_breaks_db_fact` makes `DbFactKept` fail on the observed event; the same grader passes when there is no override. |
+| Limitation | This replay proves the deterministic public C-002 case; it does not estimate how often a real model would make this error. |
 
-## Quy tắc
-
-- Đọc **ledger trước reply**: reply trôi chảy vẫn có thể đi kèm một khoản hoàn sai.
-- "Bước sai đầu tiên" phải dẫn số event cụ thể, không phải "agent bị nhầm".
-- Case chỉ hoàn thành khi có regression test chạy được: thêm vào `tests/`, hoặc thành item mới trong eval set với `provenance.from_trace`.
+The FM-08 assertion is `test_reply_amount_must_match_committed_ledger`: an explicit reply of 35,000đ fails against a 20,000đ ledger, while a reply of 20,000đ passes. The reference `swarm` does not record reply text, so `reply_amount_correct` only grades replies when the shape provides that event.
