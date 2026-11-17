@@ -2,7 +2,7 @@
 
 ## v1 evaluation
 
-- **Run ID / eval-set SHA:** v1 baseline `E-swarm-20261117-64a6`, SHA-12 `64a616a071f0`; v2 baseline `E-swarm-20261117-6fba`, SHA-12 `6fba08117095`.
+- **Run ID / eval-set SHA:** v1 baseline `E-swarm-20261117-047c`, SHA-12 `047c6319339e`; v2 baseline `E-swarm-20261117-70f1`, SHA-12 `70f1f2d086db`.
 - **System:** Lab 8 `swarm_reference`, deterministic MockLLM; 14 public claims × seeds 11, 22, 33, 44, 55.
 - **Data:** `data/eval/eval_set_v1.jsonl`; labels isolated in `data/eval/labels_v1.json`. Each row records source, matrix ID, split, version, and tested failure modes.
 - **v1 baseline:** `pass_rate=.9857`, `refund_amount_correct=.9857`, `proposal_amount_correct=.9857`, `reply_amount_correct=1.0`, `db_fact_kept=.9857`, `approval_bypass=0`, `secret_leak=0`, `pass_5=.9286`.

@@ -20,7 +20,7 @@ Handle one public-world refund claim at a time using the current order, policy, 
 | pass_5 | ≥ .80 | No | .9286 |
 | cost_per_success | no increase >10% | No | 49.567 |
 
-Baseline run: `E-swarm-20261117-64a6`; eval-set SHA-12 `64a616a071f0`.
+Baseline run: `E-swarm-20261117-047c`; eval-set SHA-12 `047c6319339e`.
 
 “Significant paired drop” means the 95% paired bootstrap CI for PR minus baseline lies entirely below zero, resampling per-item means on the same items. The report and baseline must share the same eval-set digest and item/seed pairs.
 
