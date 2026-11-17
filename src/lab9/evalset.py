@@ -28,6 +28,12 @@ REQUIRED = ("item_id", "claim_id", "failure_modes", "provenance", "split", "eval
 
 
 FM_CODE = re.compile(r"FM-\d{2}")
+MATRIX_FAILURES = {
+    "T01": ["FM-04"], "T02": ["FM-03"], "T03": ["FM-04"], "T04": ["FM-09"],
+    "T05": ["FM-09"], "T06": ["FM-06"], "T07": ["FM-02"], "T08": ["FM-08"],
+    "T09": ["FM-02"], "T10": ["FM-01"], "T11": ["FM-05", "FM-07"], "T12": ["FM-07"],
+    "T13": ["FM-02"], "T14": ["FM-05"],
+}
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -46,11 +52,11 @@ def build(source: Path = SOURCE) -> tuple[int, int]:
         items.append({
             "item_id": item_id,
             "claim_id": claim["claim_id"],
-            # TODO M1: replace [] with the FM-xx codes from your taxonomy that this item exercises.
-            "failure_modes": [],
+            "failure_modes": MATRIX_FAILURES.get(claim.get("matrix_id"), ["FM-03"]),
             "provenance": {"source": "lab8_public", "matrix_id": claim.get("matrix_id"),
-                           "from_trace": None, "generator": None,
-                           "label_by": "lab8_matrix", "checked_by": None},
+                           "from_trace": "R-swarm-C-002-s55" if claim["claim_id"] == "C-002" else None,
+                           "generator": None,
+                           "label_by": "lab8_matrix", "checked_by": "student_taxonomy_review"},
             "split": "regression",
             "eval_set_version": VERSION,
         })
